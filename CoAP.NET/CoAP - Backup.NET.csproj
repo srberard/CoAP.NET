@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>CoAP</RootNamespace>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <VersionPrefix>1.0.1</VersionPrefix>
+        <VersionSuffix>$([System.DateTime]::UtcNow.ToString(yyMM)).$([System.DateTime]::UtcNow.ToString(ddHH)).$([System.DateTime]::UtcNow.ToString(mmss))</VersionSuffix>
+        <Authors>Stephen Berard</Authors>
+        <Title>CoAP.NET</Title>
+        <Description>
+            CoAP.NET is a .NET implementation of the Constrained Application Protocol (CoAP) as defined in RFC 7252.  It supports both client and server portions.
+
+        </Description>
+        <Copyright>(C) 2023 Stephen Berard</Copyright>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/srberard/CoAP.NET</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>CoAP; CoAP-server; CoAP-client</PackageTags>
+        <PackageReleaseNotes>
+            This project is built on the CoAP-CSharp project of jimsch and the CoAP.NET project of smeshlink (which in turn is based on Californium).  This is a refresh of the original codebases as they were both no longer being maintained.  The package and class names have been reset to the original names per the CoAP.NET project.
+
+            1.0.0
+            - Intial refresh of project codebase
+        </PackageReleaseNotes>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\LICENSE">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="..\README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+        <PackageReference Include="PeterO.Cbor" Version="4.5.2" />
+    </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="copy .\$(OutDir)\*.nupkg C:\src\packages" />
+    </Target>
+
+</Project>
