@@ -6,8 +6,8 @@
         <Nullable>enable</Nullable>
         <RootNamespace>CoAP</RootNamespace>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <VersionPrefix>1.0.2</VersionPrefix>
-        <!--<VersionSuffix>$([System.DateTime]::UtcNow.ToString(yyMM)).$([System.DateTime]::UtcNow.ToString(ddHH)).$([System.DateTime]::UtcNow.ToString(mmss))</VersionSuffix>-->
+        <VersionPrefix>1.0.3</VersionPrefix>
+        <!--<VersionSuffix>$([System.DateTime]::UtcNow.ToString(yyMM)).$([System.DateTime]::UtcNow.ToString(dHH)).$([System.DateTime]::UtcNow.ToString(mss))</VersionSuffix>-->
         <Authors>Stephen Berard</Authors>
         <Title>CoAP.NET</Title>
         <Description>
@@ -22,6 +22,9 @@
         <PackageReleaseNotes>
             This project is built on the CoAP-CSharp project of jimsch and the CoAP.NET project of smeshlink (which in turn is based on Californium).  This is a refresh of the original codebases as they were both no longer being maintained.  The package and class names have been reset to the original names per the CoAP.NET project.
 
+            1.0.3
+            - Fixed a bug on the client side which prevented DTLS connections from being established
+    
             1.0.2
             - Refactored logging to use Microsoft.Extensions.Logging (see README for usage details)
             

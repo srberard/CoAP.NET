@@ -127,7 +127,12 @@ LogManager.SetLoggerFactory(loggerFactory);
 
 
 ## Building the sources
-TODO
+The project is built using Visual Studio 2022.  The project is set up to use the latest .NET framework (version 7.0 as of this writing).
+The project can be built direction in Visual Studio or via the the command line as follows:
+```shell
+> dotnet build
+```
+
 
 ## License
 [BSD with attribution](https://spdx.org/licenses/BSD-3-Clause-Attribution.html)

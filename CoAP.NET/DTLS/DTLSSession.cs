@@ -30,6 +30,7 @@ namespace CoAP.DTLS
         private DtlsClient _client;
         private DtlsTransport _dtlsSession;
         private readonly OurTransport _transport;
+        private readonly TlsKeyPair _userKey;
         private readonly TlsPskKeySet _userKeys;
         private readonly TlsKeyPairSet _serverKeys;
 
@@ -65,6 +66,7 @@ namespace CoAP.DTLS
         public DTLSSession(IPEndPoint ipEndPoint, EventHandler<DataReceivedEventArgs> dataReceived, TlsKeyPair privKey) {
             EndPoint = ipEndPoint;
             _dataReceived = dataReceived;
+            _userKey = privKey ?? throw new ArgumentNullException(nameof(privKey));
             _transport = new OurTransport(ipEndPoint);
         }
 
@@ -106,39 +108,27 @@ namespace CoAP.DTLS
         /// <param name="udpChannel">UDP channel to use</param>
         public void Connect(UDPChannel udpChannel) {
             // TODO:  Fix for client side
+            _logger.LogTrace($"DtlsSession.Connect called.");
 
-            //Console.WriteLine($"DtlsSession.Connect called {Thread.CurrentThread.ManagedThreadId}");
-            //if (_userKey.PrivateKey.HasKeyType((int)GeneralValuesInt.KeyType_Octet))
-            //{
-            //    CBORObject kid = _userKey.PrivateKey[CoseKeyKeys.KeyIdentifier];
 
-            //    BasicTlsPskIdentity pskIdentity;
-            //    pskIdentity = new BasicTlsPskIdentity(kid != null ? kid.GetByteString() : new byte[0],
-            //        _userKey.PrivateKey[CoseKeyParameterKeys.Octet_k].GetByteString());
-            //    _client = new DtlsClient(null, pskIdentity);
-            //}
-            //// TODO:  Fix for x.509
-            ////else if (_userKey.PrivateKey.HasKeyType((int)GeneralValuesInt.KeyType_EC2))
-            ////{
-            ////    _client = new DtlsClient(null, _userKey);
-            ////}
+            if (_userKey != null) {
+                AuthenticationKey = _userKey.PrivateKey;
+                DtlsClientProtocol clientProtocol = new DtlsClientProtocol();
+                _client = new DtlsClient(null, AuthenticationKey);
+                _client.TlsEventHandler += OnTlsEvent;
+                _transport.UDPChannel = udpChannel;
 
-            //_client.TlsEventHandler += OnTlsEvent;
 
-            //DtlsClientProtocol clientProtocol = new DtlsClientProtocol();
+                _listening = 1;
+                DtlsTransport dtlsClient = clientProtocol.Connect(_client, _transport);
+                _listening = 0;
 
-            //_transport.UDPChannel = udpChannel;
-            //AuthenticationKey = _userKey.PrivateKey;
+                _dtlsSession = dtlsClient;
 
-            //_listening = 1;
-            //DtlsTransport dtlsClient = clientProtocol.Connect(_client, _transport);
-            //_listening = 0;
-            //_dtlsSession = dtlsClient;
-
-            ////  We are now in the world of a connected system -
-            ////  We need to do the receive calls
-
-            //new Thread(StartListen).Start();
+                //  We are now in the world of a connected system -
+                //  We need to do the receive calls
+                new Thread(StartListen).Start();
+            }
         }
 
         /// <summary>
