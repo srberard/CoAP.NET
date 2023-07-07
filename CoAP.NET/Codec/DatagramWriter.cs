@@ -46,7 +46,7 @@ namespace CoAP.Codec
         public void Write(Int32 data, Int32 numBits) {
             if (numBits < 32 && data >= (1 << numBits)) {
                 if (_logger.IsEnabled(LogLevel.Warning))
-                    _logger.LogWarning(String.Format("Truncating value {0} to {1}-bit integer", data, numBits));
+                    _logger.LogWarning(String.Format($"Truncating value {data} to {numBits}-bit integer"));
             }
 
             for (Int32 i = numBits - 1; i >= 0; i--) {

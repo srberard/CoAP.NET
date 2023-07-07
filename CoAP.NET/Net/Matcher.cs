@@ -143,7 +143,7 @@ namespace CoAP.Net
 
             exchange.Completed += OnExchangeCompleted;
 
-            _logger.LogDebug($"Stored open request by {0}, {1}", keyID, keyToken);
+            _logger.LogDebug($"Stored open request by {keyID}, {keyToken}");
 
             _exchangesByID[keyID] = exchange;
             _exchangesByToken[keyToken] = exchange;
@@ -211,6 +211,7 @@ namespace CoAP.Net
 
         /// <inheritdoc/>
         public Exchange ReceiveRequest(Request request) {
+            _logger.LogTrace($"Matcher.Received request: {request}");
             /*
 		     * This request could be
 		     *  - Complete origin request => deliver with new exchange
@@ -327,6 +328,7 @@ namespace CoAP.Net
             Exchange.KeyToken keyToken = new Exchange.KeyToken(response.Token);
 
             Exchange exchange;
+            _logger.LogDebug($"ReceiveResponse:  Looking up exchange for {keyToken} and {keyId}");
             if (_exchangesByToken.TryGetValue(keyToken, out exchange)) {
                 //  We need to play games if this is multicast
                 if (exchange.CurrentRequest.IsMulticast) {
@@ -345,7 +347,7 @@ namespace CoAP.Net
                 } else {
                     keyId = new Exchange.KeyID(exchange.CurrentRequest.ID, null, response.Session);
                     _logger.LogDebug($"Exchange got response: Cleaning up {keyId}");
-                    _exchangesByID.Remove(keyId);
+                   _exchangesByID.Remove(keyId);
                 }
 
                 if (response.Type == MessageType.ACK && exchange.CurrentRequest.ID != response.ID) {

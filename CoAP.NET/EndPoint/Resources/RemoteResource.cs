@@ -288,10 +288,10 @@ namespace CoAP.EndPoint.Resources
 
         private void Print(StringBuilder sb, Int32 indent) {
             for (Int32 i = 0; i < indent; i++) sb.Append(" ");
-            sb.AppendFormat("+[{0}]", Name);
+            sb.AppendFormat($"+[{Name}]");
 
             String title = Title;
-            if (title != null) sb.AppendFormat(" {0}", title);
+            if (title != null) sb.AppendFormat($" {title}");
             sb.AppendLine();
 
             foreach (string key in Attributes.Keys) {

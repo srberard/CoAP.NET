@@ -110,14 +110,12 @@ namespace CoAP.DTLS
             // TODO:  Fix for client side
             _logger.LogTrace($"DtlsSession.Connect called.");
 
-
             if (_userKey != null) {
                 AuthenticationKey = _userKey.PrivateKey;
                 DtlsClientProtocol clientProtocol = new DtlsClientProtocol();
                 _client = new DtlsClient(null, AuthenticationKey);
                 _client.TlsEventHandler += OnTlsEvent;
                 _transport.UDPChannel = udpChannel;
-
 
                 _listening = 1;
                 DtlsTransport dtlsClient = clientProtocol.Connect(_client, _transport);
@@ -138,8 +136,9 @@ namespace CoAP.DTLS
         /// <param name="message">What was the last message we got?</param>
         public void Accept(UDPChannel udpChannel, byte[] message) {
             _logger.LogTrace($"DtlsSession.Accept called.");
-            DtlsServerProtocol serverProtocol = new DtlsServerProtocol();
 
+            DtlsServerProtocol serverProtocol = new DtlsServerProtocol();
+            
             DTLSServer server = new DTLSServer(_serverKeys, _userKeys);
             server.TlsEventHandler += OnTlsEvent;
             _transport.UDPChannel = udpChannel;
@@ -147,17 +146,16 @@ namespace CoAP.DTLS
 
             //  Make sure we do not startup a listing thread as the correct call is always made
             //  by the DTLS accept protocol.
-
             _listening = 1;
             DtlsTransport dtlsServer = serverProtocol.Accept(server, _transport);
             _listening = 0;
 
             _dtlsSession = dtlsServer;
-            // TODO:  Fix
-            AuthenticationKey = server.AuthenticationKey;
+            AuthenticationKey = server.AuthenticationKey;  // Set the authentication key so it is available in the Resources
             AuthenticationCertificate = server.AuthenticationCertificate;
 
-            Task.Run(() => StartListen());
+            new Thread(StartListen).Start();
+            //Task.Run(() => StartListen());
         }
 
         /// <summary>
@@ -234,7 +232,14 @@ namespace CoAP.DTLS
             //}
             // ***************************
             _logger.LogTrace($"DtlsSession.ReceiveData called.");
-            _transport.Receive(e.Data);
+
+            try {
+                _transport.Receive(e.Data);
+            }
+            catch (Exception ex) {
+                _logger.LogError($"Exception in DtlsSession.ReceiveData: {ex.Message}", ex);
+            }
+
             Task.Run(() => ProcessReceivedData(_dtlsSession, e.Data));
         }
 
@@ -265,6 +270,7 @@ namespace CoAP.DTLS
                 } else {
                     byte[] buf2 = new byte[size];
                     Array.Copy(buf, buf2, size);
+                    _logger.LogTrace($"DtlsSession.ProcessReceivedData calling FireDataReceived.");
                     FireDataReceived(buf2, EndPoint, null);  // M00BUG
                 }
             }
@@ -306,6 +312,7 @@ namespace CoAP.DTLS
         }
 
         private void FireDataReceived(Byte[] data, System.Net.EndPoint ep, System.Net.EndPoint epLocal) {
+            _logger.LogTrace($"DtlsSession.FireDataReceived: data={BitConverter.ToString(data)}");
             EventHandler<DataReceivedEventArgs> h = _dataReceived;
             if (h != null) {
                 h(this, new DataReceivedEventArgs(data, ep, epLocal, this));
@@ -352,14 +359,15 @@ namespace CoAP.DTLS
             }
 
             public int Receive(byte[] buf, int off, int len, int waitMillis) {
-                _logger.LogTrace($"DtlsSession.Receive(byte[]) called.");
+                _logger.LogTrace($"OurTransport.Receive(byte[]) called.");
                 lock (Queue) {
                     if (Queue.Count < 1) {
                         try {
                             Monitor.Wait(Queue, waitMillis);
                         }
-                        catch (ThreadInterruptedException) {
+                        catch (ThreadInterruptedException e) {
                             // TODO Keep waiting until full wait expired?
+                            _logger.LogError($"Exception in DTLSSession.Receive: {e.Message}", e);
                         }
 
                         if (Queue.Count < 1) {
@@ -371,8 +379,7 @@ namespace CoAP.DTLS
                     Queue.TryDequeue(out packet);
                     int copyLength = Math.Min(len, packet.Length);
                     Array.Copy(packet, 0, buf, off, copyLength);
-                    // Debug.Print($"OurTransport::Receive - EP:{_ep} Data Length: {packet.Length}");
-                    // Debug.Print(BitConverter.ToString(buf, off, copyLength));
+                    _logger.LogTrace($"OurTransport::Receive - endpoint={_ep}, packet_length={packet.Length}, data={BitConverter.ToString(buf, off, copyLength)}");
                     return copyLength;
                 }
             }

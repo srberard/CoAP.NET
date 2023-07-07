@@ -60,7 +60,9 @@ namespace CoAP.DTLS
         /// </summary>
         /// <returns></returns>
         public TlsPskIdentity GetKey(byte[] id) {
-            return _keys[Encoding.UTF8.GetString(id)];
+            _keys.TryGetValue(Encoding.UTF8.GetString(id), out TlsPskIdentity key);
+            
+            return key;
         }
     }
 }

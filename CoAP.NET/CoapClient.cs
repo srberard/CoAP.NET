@@ -662,7 +662,7 @@ namespace CoAP
                         relation.Current = resp;
                         Deliver(notify, e);
                     } else {
-                        _logger.LogDebug($"Dropping old notification: {0}", resp);
+                        _logger.LogDebug($"Dropping old notification: {resp}");
                     }
                 }
             };

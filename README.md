@@ -5,9 +5,9 @@ CoAP.NET is an implementation in C# providing CoAP-based services to .NET applic
 Reviews and suggestions would be appreciated.
 
 ## Copyright
-Copyright (c) 2011-2013, Longxiang He <<longxianghe@gmail.com>>, SmeshLink Technology Co.<br>
-Copyright (c) 2016-2020, Jim Schaad <<ietf@augustcellars.com>><br>
-Copyright (c) 2023-, Stephen Berard <<stephen.berard@outlook.com>><br>
+Copyright (c) 2011-2013, Longxiang He <<longxianghe@gmail.com>>, SmeshLink Technology Co.  
+Copyright (c) 2016-2020, Jim Schaad <<ietf@augustcellars.com>>  
+Copyright (c) 2023-, Stephen Berard <<stephen.berard@outlook.com>>  
 
 ## How to Install
 The C# implementation is available in the NuGet Package Gallery under the name [CoAP.NET](https://www.nuget.org/packages/CoAP.NET).

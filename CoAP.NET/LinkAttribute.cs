@@ -81,7 +81,7 @@ namespace CoAP
                     } else if (Value is Int32) {
                         builder.Append(((Int32)Value));
                     } else {
-                        _logger.LogError($"Serializing attribute of unexpected type: {0} ({1})", Name, Value.GetType().Name);
+                        _logger.LogError($"Serializing attribute of unexpected type: {Name} ({Value.GetType().Name})");
                     }
                 }
             }
@@ -89,7 +89,7 @@ namespace CoAP
 
         /// <inheritdoc/>
         public override String ToString() {
-            return String.Format("name: {0} value: {1}", Name, Value);
+            return $"name: {Name} value: {Value}";
         }
 
         /// <inheritdoc/>

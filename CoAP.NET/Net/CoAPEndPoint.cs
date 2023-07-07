@@ -264,6 +264,7 @@ namespace CoAP.Net
         /// </summary>
         /// <param name="e"></param>
         private void ReceiveData(DataReceivedEventArgs e) {
+            _logger.LogTrace($"CoAPEndPont.ReceiveData:  Message received: {BitConverter.ToString(e.Data).Replace("-", string.Empty)}", e.EndPoint);
             IMessageDecoder decoder = MessageDecoder(e.Data);
 
             if (decoder.IsRequest) {
@@ -272,7 +273,9 @@ namespace CoAP.Net
                 try {
                     request = decoder.DecodeRequest();
                 }
-                catch (Exception) {
+                catch (Exception ex) {
+                    _logger.LogWarning($"DecodeRequest threw exception {ex}", ex);
+
                     if (decoder.IsReply) {
                         _logger.LogWarning($"Message format error caused by {e.EndPoint}", e.EndPoint);
                     } else {
@@ -311,12 +314,12 @@ namespace CoAP.Net
                     response = decoder.DecodeResponse();
                 }
                 catch (Exception ex) {
-                    _logger.LogDebug($"ReceiveData: Decode Response Failed  data={0}\nException={1}", BitConverter.ToString(e.Data), ex.ToString());
+                    _logger.LogDebug($"ReceiveData: Decode Response Failed  data={BitConverter.ToString(e.Data)}\nException={ex.ToString()}");
                     return;
                 }
 
                 response.Source = e.EndPoint;
-                _logger.LogDebug("ReceiveData: {0}", Util.Utils.ToString(response));
+                _logger.LogDebug($"ReceiveData: {Util.Utils.ToString(response)}");
 
                 Fire(ReceivingResponse, response);
 
@@ -327,7 +330,7 @@ namespace CoAP.Net
                         exchange.EndPoint = this;
                         _coapStack.ReceiveResponse(exchange, response);
                     } else if (response.Type != MessageType.ACK) {
-                        _logger.LogDebug($"Rejecting unmatchable response from {0}", e.EndPoint);
+                        _logger.LogDebug($"Rejecting unmatchable response from {e.EndPoint}");
                         Reject(response);
                     }
                 }
@@ -338,7 +341,7 @@ namespace CoAP.Net
                     message = decoder.DecodeEmptyMessage();
                 }
                 catch (Exception ex) {
-                    _logger.LogDebug($"ReceiveData: Decode Empty Failed  data={0}\nException={1}", BitConverter.ToString(e.Data), ex.ToString());
+                    _logger.LogDebug($"ReceiveData: Decode Empty Failed  data={BitConverter.ToString(e.Data)}\nException={ex.ToString()}");
                     return;
                 }
 
@@ -349,7 +352,7 @@ namespace CoAP.Net
                 if (!message.IsCancelled) {
                     // CoAP Ping
                     if (message.Type == MessageType.CON || message.Type == MessageType.NON) {
-                        _logger.LogDebug($"Responding to ping by {0}", e.EndPoint);
+                        _logger.LogDebug($"Responding to ping by {e.EndPoint}");
                         Reject(message);
                     } else {
                         Exchange exchange = _matcher.ReceiveEmptyMessage(message);
@@ -367,19 +370,19 @@ namespace CoAP.Net
                     message = decoder.DecodeSignal();
                 }
                 catch (Exception ex) {
-                    _logger.LogDebug($"ReceiveData: Decode Signal Failed  data={0}\nException={1}", BitConverter.ToString(e.Data), ex.ToString());
+                    _logger.LogDebug($"ReceiveData: Decode Signal Failed  data={BitConverter.ToString(e.Data)}\nException={ex.ToString()}");
                     return;
                 }
 
                 message.Source = e.EndPoint;
 
-                _logger.LogInformation($"Processing signal message {1} from {0}", e.EndPoint, message.ToString());
+                _logger.LogInformation($"Processing signal message {e.EndPoint} from {message.ToString()}");
 
                 Fire(ReceivingSignalMessage, message);
 
                 switch (message.SignalCode) {
                     default:
-                        _logger.LogInformation($"Unknown signal received.  Code is {0}.{1}", ((int)message.SignalCode) / 32, ((int)message.SignalCode) % 32);
+                        _logger.LogInformation($"Unknown signal received.  Code is {((int)message.SignalCode) / 32}.{((int)message.SignalCode) % 32}");
                         break;
 
                     case SignalCode.CSM:
@@ -394,7 +397,7 @@ namespace CoAP.Net
                                     break;
 
                                 default:
-                                    _logger.LogInformation($"Bad CSM Option {0} received", op.Type);
+                                    _logger.LogInformation($"Bad CSM Option {op.Type} received");
                                     signal = new SignalMessage(SignalCode.Abort);
                                     Option op2 = Option.Create(OptionType.Signal_BadCSMOption);
                                     op2.IntValue = (int)op.Type;
@@ -408,6 +411,7 @@ namespace CoAP.Net
                         break;
 
                     case SignalCode.Ping:
+                        _logger.LogInformation($"PING"); 
                         signal = new SignalMessage(SignalCode.Pong);
                         signal.Token = message.Token;
                         dataChannel.Send(Serialize(signal), e.Session, e.EndPoint);
@@ -426,7 +430,7 @@ namespace CoAP.Net
                         break;
                 }
             } else {
-                _logger.LogDebug($"Silently ignoring non-CoAP message from {0}", e.EndPoint);
+                _logger.LogDebug($"Silently ignoring non-CoAP message from {e.EndPoint}");
             }
         }
 

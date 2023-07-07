@@ -78,7 +78,8 @@ namespace CoAP
         public new bool IsMulticast {
             get {
                 if (Destination == null) {
-                    throw new CoAPException("Must set the destination before we can known");
+                    //TODO:  Fix this, exception gets thrown on blockwise POSTS because Destination is null for some reason
+                    //throw new CoAPException("Must set the destination before we can known");
                 }
 
                 return base.IsMulticast;
@@ -226,28 +227,25 @@ namespace CoAP
         /// <param name="name">a <code>String</code> specifying the name of the parameter</param>
         /// <returns>a <code>String</code> representing the single value of the parameter</returns>
         public string GetParameter(string name) {
-            foreach (Option query in GetOptions(OptionType.UriQuery)) {
-                string val = query.StringValue;
-                if (string.IsNullOrEmpty(val)) {
-                    continue;
-                }
+            var query_params = GetOptions(OptionType.UriQuery);
 
-                if (val.StartsWith(name + "=")) {
-                    return val.Substring(name.Length + 1);
+            if (query_params != null) {
+                foreach (Option query in query_params) {
+                    string val = query.StringValue;
+                    if (string.IsNullOrEmpty(val)) {
+                        continue;
+                    }
+
+                    if (val.StartsWith(name + "=")) {
+                        return val.Substring(name.Length + 1);
+                    }
                 }
             }
+
             return null;
         }
 
         #region SendFunctions
-
-        /// <summary>
-        /// Send the request.
-        /// </summary>
-        [Obsolete("Call Send() instead.  Will be removed in drop 1.7")]
-        public void Execute() {
-            Send();
-        }
 
         /// <summary>
         /// Sends this message.

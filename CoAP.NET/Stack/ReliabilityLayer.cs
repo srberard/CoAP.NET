@@ -91,7 +91,7 @@ namespace CoAP.Stack
             }
 
             if (request.Type == MessageType.CON) {
-                _logger.LogDebug($"Scheduling retransmission for {0}", request);
+                _logger.LogDebug($"Scheduling retransmission for {request}");
                 PrepareRetransmission(exchange, request, ctx => SendRequest(nextLayer, exchange, request));
             }
 
@@ -252,7 +252,7 @@ namespace CoAP.Stack
                 ctx.CurrentTimeout = InitialTimeout(_ackTimeout, _ackRandomFactor);
             }
 
-            _logger.LogDebug($"Send request, failed transmissions: {0}", ctx.FailedTransmissionCount);
+            _logger.LogDebug($"Send request, failed transmissions: {ctx.FailedTransmissionCount}");
 
             ctx.Start();
         }
@@ -356,13 +356,13 @@ namespace CoAP.Stack
                 int failedCount = ++FailedTransmissionCount;
 
                 if (_message.IsAcknowledged) {
-                    _logger.LogDebug($"Timeout: message already acknowledged, cancel retransmission of {0}", _message);
+                    _logger.LogDebug($"Timeout: message already acknowledged, cancel retransmission of {_message}");
                 } else if (_message.IsRejected) {
-                    _logger.LogDebug($"Timeout: message already rejected, cancel retransmission of {0}", _message);
+                    _logger.LogDebug($"Timeout: message already rejected, cancel retransmission of {_message}");
                 } else if (_message.IsCancelled) {
-                    _logger.LogDebug($"Timeout: canceled (ID={0}), do not retransmit", _message.ID);
+                    _logger.LogDebug($"Timeout: canceled (ID={_message.ID}), do not retransmit");
                 } else if (failedCount <= (_message.MaxRetransmit != 0 ? _message.MaxRetransmit : _maxRetransmitCount)) {
-                    _logger.LogDebug($"Timeout: retransmit message, failed: {0}, message: {1}", failedCount, _message);
+                    _logger.LogDebug($"Timeout: retransmit message, failed: {failedCount}, message: {_message}");
 
                     _message.FireRetransmitting();
 
@@ -371,7 +371,7 @@ namespace CoAP.Stack
                         _retransmit(this);
                     }
                 } else {
-                    _logger.LogDebug($"Timeout: retransmission limit reached, exchange failed, message: {0}", _message);
+                    _logger.LogDebug($"Timeout: retransmission limit reached, exchange failed, message: {_message}");
                     _exchange.TimedOut = true;
                     _message.IsTimedOut = true;
                     _exchange.Remove(_TransmissionContextKey);

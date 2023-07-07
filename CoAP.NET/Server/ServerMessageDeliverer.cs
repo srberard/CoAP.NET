@@ -46,6 +46,7 @@ namespace CoAP.Server
 
         /// <inheritdoc/>
         public void DeliverRequest(Exchange exchange) {
+            _logger.LogTrace($"ServerMessageDeliverer.DeliverRequest:  UriPath={exchange.Request.UriPath}");
             Request request = exchange.Request;
             IResource resource = FindResource(request.UriPaths);
             if (resource != null) {

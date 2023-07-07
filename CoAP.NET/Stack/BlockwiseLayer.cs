@@ -34,7 +34,7 @@ namespace CoAP.Stack
             _maxMessageSize = config.MaxMessageSize;
             _defaultBlockSize = config.DefaultBlockSize;
             _blockTimeout = config.BlockwiseStatusLifetime;
-            _logger.LogDebug($"BlockwiseLayer uses MaxMessageSize: {0} and DefaultBlockSize: {1}", _maxMessageSize, _defaultBlockSize);
+            _logger.LogDebug($"BlockwiseLayer uses MaxMessageSize: {_maxMessageSize} and DefaultBlockSize: {_defaultBlockSize}");
 
             config.PropertyChanged += ConfigChanged;
         }
@@ -70,7 +70,7 @@ namespace CoAP.Stack
                 base.SendRequest(nextLayer, exchange, request);
             } else if (RequiresBlockwise(request)) {
                 // This must be a large POST or PUT request
-                _logger.LogDebug($"Request payload {0}/{1} requires Blockwise.", request.PayloadSize, _maxMessageSize);
+                _logger.LogDebug($"Request payload {request.PayloadSize}/{_maxMessageSize} requires Blockwise.");
 
                 BlockwiseStatus status = FindRequestBlockStatus(exchange, request);
                 Request block = GetNextRequestBlock(request, status);
@@ -121,6 +121,7 @@ namespace CoAP.Stack
                         _logger.LogDebug("There are more blocks to come. Acknowledge this block.");
 
                         Response piggybacked = Response.CreateResponse(request, StatusCode.Continue);
+                        piggybacked.Session = request.Session;
                         piggybacked.AddOption(new BlockOption(OptionType.Block1, block1.NUM, block1.SZX, true));
                         piggybacked.Last = false;
 
@@ -148,8 +149,7 @@ namespace CoAP.Stack
                     }
                 } else {
                     // ERROR, wrong number, Incomplete
-                    _logger.LogWarning($"Wrong block number. Expected {0} but received {1}. Respond with 4.08 (Request Entity Incomplete).",
-                                      status.CurrentNUM, block1.NUM);
+                    _logger.LogWarning($"Wrong block number. Expected {status.CurrentNUM} but received {block1.NUM}. Respond with 4.08 (Request Entity Incomplete).");
                     Response error = Response.CreateResponse(request, StatusCode.RequestEntityIncomplete);
                     error.AddOption(new BlockOption(OptionType.Block1, block1.NUM, block1.SZX, block1.M));
                     error.SetPayload("Wrong block number");
@@ -173,11 +173,11 @@ namespace CoAP.Stack
 
                 if (status.Complete) {
                     // clean up blockwise status
-                    _logger.LogDebug($"Ongoing is complete {0}", status);
+                    _logger.LogDebug($"Ongoing is complete {status}");
                     exchange.ResponseBlockStatus = null;
                     ClearBlockCleanup(exchange);
                 } else {
-                    _logger.LogDebug($"Ongoing is continuing {0}", status);
+                    _logger.LogDebug($"Ongoing is continuing {status}");
                 }
 
                 exchange.CurrentResponse = block;
@@ -198,7 +198,7 @@ namespace CoAP.Stack
             }
 
             if (RequiresBlockwise(exchange, response)) {
-                _logger.LogDebug($"Response payload {0}/{1} requires Blockwise", response.PayloadSize, _maxMessageSize);
+                _logger.LogDebug($"Response payload {response.PayloadSize}/{_maxMessageSize} requires Blockwise");
 
                 BlockwiseStatus status = FindResponseBlockStatus(exchange, response);
 
@@ -215,11 +215,11 @@ namespace CoAP.Stack
 
                 if (status.Complete) {
                     // clean up blockwise status
-                    _logger.LogDebug($"Ongoing finished on first block {0}", status);
+                    _logger.LogDebug($"Ongoing finished on first block {status}");
                     exchange.ResponseBlockStatus = null;
                     ClearBlockCleanup(exchange);
                 } else {
-                    _logger.LogDebug($"Ongoing started {0}", status);
+                    _logger.LogDebug($"Ongoing started {status}");
                 }
 
                 exchange.CurrentResponse = block;
@@ -374,7 +374,7 @@ namespace CoAP.Stack
                         exchange.CurrentRequest = block;
                         base.SendRequest(nextLayer, exchange, block);
                     } else {
-                        _logger.LogDebug($"We have received all {0} blocks of the response. Assemble and deliver.", status.BlockCount);
+                        _logger.LogDebug($"We have received all {status.BlockCount} blocks of the response. Assemble and deliver.");
                         Response assembled = new Response(response.StatusCode);
                         AssembleMessage(status, assembled, response);
                         assembled.Type = response.Type;
@@ -643,9 +643,9 @@ namespace CoAP.Stack
         /// <param name="exchange">exchange to clean up</param>
         private void BlockwiseTimeout(Exchange exchange) {
             if (exchange.Request == null) {
-                _logger.LogInformation($"Block1 transfer timed out: {0}", exchange.CurrentRequest);
+                _logger.LogInformation($"Block1 transfer timed out: {exchange.CurrentRequest}");
             } else {
-                _logger.LogInformation($"Block2 transfer timed out: {0}", exchange.Request);
+                _logger.LogInformation($"Block2 transfer timed out: {exchange.Request}");
             }
             exchange.Complete = true;
         }

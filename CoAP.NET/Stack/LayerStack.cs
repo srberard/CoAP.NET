@@ -17,6 +17,7 @@ using System;
 using CoAP.Log;
 using CoAP.Net;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace CoAP.Stack
 {
@@ -103,6 +104,7 @@ namespace CoAP.Stack
         private class StackTopLayer : AbstractLayer
         {
             public override void SendRequest(INextLayer nextLayer, Exchange exchange, Request request) {
+                _logger.LogTrace($"LayerStack.SendRequest - {request}");
                 if (exchange == null) {
                     exchange = new Exchange(request, Origin.Local);
                     exchange.EndPoint = request.EndPoint;
@@ -113,11 +115,13 @@ namespace CoAP.Stack
             }
 
             public override void SendResponse(INextLayer nextLayer, Exchange exchange, Response response) {
+                _logger.LogTrace($"LayerStack.SendResponse - {response}");
                 exchange.Response = response;
                 base.SendResponse(nextLayer, exchange, response);
             }
 
             public override void ReceiveRequest(INextLayer nextLayer, Exchange exchange, Request request) {
+                _logger.LogTrace($"LayerStack.ReceiveRequest - {request}" );
                 // if there is no BlockwiseLayer we still have to set it
                 if (exchange.Request == null)
                     exchange.Request = request;
@@ -126,6 +130,7 @@ namespace CoAP.Stack
             }
 
             public override void ReceiveResponse(INextLayer nextLayer, Exchange exchange, Response response) {
+                _logger.LogTrace($"LayerStack.ReceiveResponse - {response}");
                 if (!response.HasOption(OptionType.Observe))
                     exchange.Complete = true;
                 if (exchange.Deliverer != null)
@@ -135,6 +140,7 @@ namespace CoAP.Stack
 
             public override void ReceiveEmptyMessage(INextLayer nextLayer, Exchange exchange, EmptyMessage message) {
                 // When empty messages reach the top of the CoAP stack we can ignore them.
+                _logger.LogTrace($"LayerStack.ReceiveEmptyMessage - {message}");
             }
         }
 
@@ -175,6 +181,7 @@ namespace CoAP.Stack
             }
 
             public void ReceiveRequest(Exchange exchange, Request request) {
+                _logger.LogTrace($"LayerStack.ReceiveRequest Layer={_entry.PrevEntry.Filter}, request={request}");
                 _entry.PrevEntry.Filter.ReceiveRequest(_entry.PrevEntry.NextFilter, exchange, request);
             }
 

@@ -202,7 +202,7 @@ namespace CoAP.Server.Resources
 
         /// <inheritdoc/>
         public void Add(IResource child) {
-            _logger.LogInformation("Adding child {0} to {1}", child.Name, Name);
+            _logger.LogInformation($"Adding child {child.Name} to {Name}");
 
             if (child.Name == null) {
                 throw new ArgumentException("Child must have a name", nameof(child));
@@ -281,9 +281,9 @@ namespace CoAP.Server.Resources
 
             if (old != null) {
                 old.Cancel();
-                _logger.LogDebug($"Replacing observe relation between {0} and resource {1}", relation.Key, Uri);
+                _logger.LogDebug($"Replacing observe relation between {relation.Key} and resource {Uri}");
             } else {
-                _logger.LogDebug($"Successfully established observe relation between {0} and resource {1}", relation.Key, Uri);
+                _logger.LogDebug($"Successfully established observe relation between {relation.Key} and resource {Uri}");
             }
         }
 

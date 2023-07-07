@@ -223,7 +223,9 @@ namespace CoAP.DTLS
                             //
                             // This code does not do that, instead it simply discards the old session in favor of the new.
                             _sessionList.Remove(session);
+                            _logger.LogTrace($"DtlsChannel.ReceiveData: Removing old session for {e.EndPoint}");
                         } else {
+                            _logger.LogTrace($"DtlsChannel.ReceiveData: Using existing session {session.EndPoint}");
                             session.ReceiveData(sender, e);
                         }
 

@@ -233,7 +233,7 @@ namespace CoAP.Channel
         }
 
         private void BeginReceive(SocketSet info) {
-            _logger.LogTrace($"UDPChannel.BeginRecieve:  _running={0}", _running);
+            _logger.LogTrace($"UDPChannel.BeginRecieve:  _running={_running}");
 
             if (_running > 0) {
                 BeginReceive(info._socket);
@@ -245,7 +245,7 @@ namespace CoAP.Channel
         }
 
         private void EndReceive(UDPSocket socket, byte[] buffer, int offset, int count, System.Net.EndPoint ep) {
-            _logger.LogTrace($"UDPChannel.EndReceive: length={0}", count);
+            _logger.LogTrace($"UDPChannel.EndReceive: length={count}");
 
             if (count > 0) {
                 byte[] bytes = new byte[count];
@@ -275,7 +275,7 @@ namespace CoAP.Channel
         }
 
         private void EndReceiveMessage(UDPSocket socket, byte[] buffer, int offset, int count, System.Net.EndPoint ep, IPAddress ipLocal) {
-            _logger.LogTrace($"UDPChannel.EndReceive: length={0}", count);
+            _logger.LogTrace($"UDPChannel.EndReceive: length={count}");
 
             if (count > 0) {
                 byte[] bytes = new byte[count];
@@ -316,7 +316,7 @@ namespace CoAP.Channel
         }
 
         private void FireDataReceived(byte[] data, System.Net.EndPoint ep, System.Net.EndPoint epLocal) {
-            _logger.LogTrace($"UDPChannel.FireDataReceived: data length={0}", data.Length);
+            _logger.LogTrace($"UDPChannel.FireDataReceived: data length={data.Length}");
 
             EventHandler<DataReceivedEventArgs> h = DataReceived;
             if (h != null) {
@@ -629,7 +629,7 @@ namespace CoAP.Channel
         }
 
         private void BeginReceive(UDPSocket socket) {
-            _logger.LogTrace($"UDPChannel.BeginReceive: socket={0}  _running={1}", socket.Socket.LocalEndPoint, _running);
+            _logger.LogTrace($"UDPChannel.BeginReceive: socket={socket.Socket.LocalEndPoint}  _running={_running}");
 
             if (_running == 0) {
                 return;
@@ -640,7 +640,7 @@ namespace CoAP.Channel
                     socket.Socket.RemoteEndPoint :
                     new IPEndPoint(socket.Socket.AddressFamily == AddressFamily.InterNetwork ?
                         IPAddress.Any : IPAddress.IPv6Any, 0);
-                _logger.LogTrace($"UDPChannel.BeginReceive: Setup the remote endpoint {0}", socket.ReadBuffer.RemoteEndPoint.ToString());
+                _logger.LogTrace($"UDPChannel.BeginReceive: Setup the remote endpoint {socket.ReadBuffer.RemoteEndPoint.ToString()}");
             }
 
             bool willRaiseEvent;
@@ -657,19 +657,20 @@ namespace CoAP.Channel
                 willRaiseEvent = socket.Socket.ReceiveFromAsync(socket.ReadBuffer);
             }
             catch (ObjectDisposedException) {
-                _logger.LogTrace($"UDPChannel.BeginRecieve:  Socket {0} is disposed", socket.ToString());
+                _logger.LogTrace($"UDPChannel.BeginRecieve:  Socket {socket.ToString()} is disposed");
                 // do nothing
                 return;
             }
             catch (Exception ex) {
-                _logger.LogTrace($"UDPChannel.BeginReceive: Socket {0} has exception", socket.ToString());
+                _logger.LogTrace($"UDPChannel.BeginReceive: Socket {socket.ToString()} has exception");
                 EndReceive(socket, ex);
                 return;
             }
 
-            _logger.LogTrace($"UDPChannel.BeginReceive: willRaiseEvent={0}", willRaiseEvent);
+            _logger.LogTrace($"UDPChannel.BeginReceive: willRaiseEvent={willRaiseEvent}");
 
             if (!willRaiseEvent) {
+                _logger.LogTrace($"Calling UDPChannel.ProcessReceive");
                 ProcessReceive(socket.ReadBuffer);
             }
         }
@@ -710,7 +711,7 @@ namespace CoAP.Channel
             } else if (e.SocketError != SocketError.OperationAborted
                   && e.SocketError != SocketError.Interrupted) {
 
-                _logger.LogTrace($"UDPChannel.ProcessRecieve: ==> exception handler {0}", e.SocketError.ToString());
+                _logger.LogTrace($"UDPChannel.ProcessRecieve: ==> exception handler {e.SocketError.ToString()}");
 
                 EndReceive(socket, new SocketException((int)e.SocketError));
             }
@@ -727,7 +728,7 @@ namespace CoAP.Channel
                 EndReceiveMessage(socket, e.Buffer, e.Offset, e.BytesTransferred, e.RemoteEndPoint, e.ReceiveMessageFromPacketInfo.Address);
             } else if (e.SocketError != SocketError.OperationAborted
                        && e.SocketError != SocketError.Interrupted) {
-                _logger.LogTrace($"UDPChannel.rocessReceive: ==> exception handler {0}", e.SocketError.ToString());
+                _logger.LogTrace($"UDPChannel.rocessReceive: ==> exception handler {e.SocketError.ToString()}");
 
                 EndReceive(socket, new SocketException((int)e.SocketError));
             }
@@ -758,7 +759,7 @@ namespace CoAP.Channel
                     break;
 
                 default:
-                    _logger.LogTrace($"UDPChannel.SocketAsyncEventArgs: operation = {0}", e.LastOperation.ToString());
+                    _logger.LogTrace($"UDPChannel.SocketAsyncEventArgs: operation = {e.LastOperation.ToString()}");
                     break;
             }
         }

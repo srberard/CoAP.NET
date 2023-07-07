@@ -147,6 +147,23 @@ namespace CoAP.DTLS
                     return ((byte[])psk.GetPsk().Clone());
                 }
 
+                // Lookup the key based on the identity
+
+                // TODO:  Setup proper key resolution eventing
+                TlsEvent e = new TlsEvent(TlsEvent.EventCode.UnknownPskName) {
+                    PskName = identity
+                };
+
+                EventHandler<TlsEvent> handler = TlsEventHandler;
+                if (handler != null) {
+                    handler(this, e);
+                }
+
+                if (e.KeyValue != null) {
+                    AuthenticationKey = e.KeyValue;
+                    return (e.KeyValue.GetPsk());
+                }
+
                 return null;
             }
 
