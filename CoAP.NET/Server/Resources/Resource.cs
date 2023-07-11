@@ -324,6 +324,7 @@ namespace CoAP.Server.Resources
         /// <inheritdoc/>
         public virtual void HandleRequest(Exchange exchange) {
             CoapExchange ce = new CoapExchange(exchange, this);
+            _logger.LogInformation($"[{exchange.Request.ID}] {exchange.Request.Method} {exchange.Request.URI}");
 
             if (RequireSecurity) {
                 if ((null == (exchange.Request.Session as ISecureSession))) {
