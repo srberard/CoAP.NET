@@ -27,8 +27,8 @@ jobs:
         run: dotnet build --no-restore --configuration Release
       
       - name: Upload build artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |
-            CoAPnet/bin/Release/
+            CoAP.NET/bin/Release/
