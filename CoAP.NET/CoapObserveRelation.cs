@@ -36,7 +36,7 @@ namespace CoAP
             Request = request;
             _endpoint = endpoint;
             Orderer = new ObserveNotificationOrderer(config);
-            Request.ObserveRelation = this;
+            Request.CoapObserveRelation = this;
 
             request.Reregistering += OnReregister;
         }
@@ -85,7 +85,7 @@ namespace CoAP
             // dispatch final response to the same message observers
             cancel.CopyEventHandler(Request);
             Reconnect = false;
-            cancel.ObserveRelation = this;
+            cancel.CoapObserveRelation = this;
             cancel.Reregistering += OnReregister;
 
             cancel.Send(_endpoint);
@@ -106,7 +106,7 @@ namespace CoAP
             newRequest.Destination = Request.Destination;
             newRequest.CopyEventHandler(Request);
             newRequest.Reregistering += OnReregister;
-            newRequest.ObserveRelation = this;
+            newRequest.CoapObserveRelation = this;
 
             newRequest.Send(_endpoint);
             Request = newRequest;

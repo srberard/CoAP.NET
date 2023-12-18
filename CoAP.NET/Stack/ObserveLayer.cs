@@ -121,7 +121,7 @@ namespace CoAP.Stack
         /// <inheritdoc/>
         public override void ReceiveResponse(INextLayer nextLayer, Exchange exchange, Response response) {
             if (response.HasOption(OptionType.Observe)) {
-                CoapObserveRelation relation = exchange.Request.ObserveRelation;
+                CoapObserveRelation relation = exchange.Request.CoapObserveRelation;
                 if (relation == null || relation.Canceled) {
                     // The request was canceled and we no longer want notifications
                     _logger.LogDebug("ObserveLayer rejecting notification for canceled Exchange");
@@ -293,7 +293,7 @@ namespace CoAP.Stack
             private void timer_Elapsed(object sender, ElapsedEventArgs e) {
                 Request request = _exchange.Request;
                 //  Make sure that we really want to do the re-registration
-                if (request.ObserveRelation != null && !request.ObserveRelation.Canceled && request.ObserveRelation.Reconnect) {
+                if (request.CoapObserveRelation != null && !request.CoapObserveRelation.Canceled && request.CoapObserveRelation.Reconnect) {
                     Request refresh = new Request(request.Method);
 
                     refresh.SetOptions(request.GetOptions());
@@ -304,7 +304,7 @@ namespace CoAP.Stack
                     refresh.Token = request.Token;
                     refresh.Destination = request.Destination;
                     refresh.CopyEventHandler(request);
-                    refresh.ObserveRelation = request.ObserveRelation;
+                    refresh.CoapObserveRelation = request.CoapObserveRelation;
                     _logger.LogDebug($"Re-registering for {request}");
                     request.FireReregister(refresh);
                     if (!refresh.IsCancelled) {

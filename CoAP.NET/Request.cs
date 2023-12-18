@@ -163,7 +163,7 @@ namespace CoAP
         /// <summary>
         /// The observe relationship if one exists.
         /// </summary>
-        public CoapObserveRelation ObserveRelation { get; set; }
+        public CoapObserveRelation CoapObserveRelation { get; set; }
 
         /// <summary>
         /// Gets or sets the response to this request.
@@ -196,8 +196,8 @@ namespace CoAP
         /// </summary>
         [Obsolete("Use ObserveRelation.Reconnect instead")]
         public bool ObserveReconnect {
-            get => ObserveRelation.Reconnect;
-            set => ObserveRelation.Reconnect = value;
+            get => CoapObserveRelation.Reconnect;
+            set => CoapObserveRelation.Reconnect = value;
         }
 
         /// <summary>

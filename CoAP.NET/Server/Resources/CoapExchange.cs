@@ -13,6 +13,7 @@
 
 using System;
 using CoAP.Net;
+using CoAP.Observe;
 
 namespace CoAP.Server.Resources
 {
@@ -62,6 +63,8 @@ namespace CoAP.Server.Resources
         /// </summary>
         public Byte[] ETag { get; set; }
 
+        public ObserveRelation ObserveRelation { get { return _exchange.Relation; } }
+        
         /// <summary>
         /// Accepts the exchange.
         /// </summary>
