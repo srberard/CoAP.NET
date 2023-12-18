@@ -31,4 +31,4 @@ jobs:
         with:
           name: build-artifacts
           path: |
-            CoAPnet/bin/Release/
+            ./
