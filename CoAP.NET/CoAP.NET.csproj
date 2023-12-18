@@ -6,8 +6,8 @@
         <Nullable>enable</Nullable>
         <RootNamespace>CoAP</RootNamespace>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <VersionPrefix>1.0.3</VersionPrefix>
-        <!--<VersionSuffix>$([System.DateTime]::UtcNow.ToString(yyMM)).$([System.DateTime]::UtcNow.ToString(dHH)).$([System.DateTime]::UtcNow.ToString(mss))</VersionSuffix>-->
+        <VersionPrefix>1.0.4</VersionPrefix>
+        <!-- <VersionSuffix>$([System.DateTime]::UtcNow.ToString(yyMMddHH))</VersionSuffix> -->
         <Authors>Stephen Berard</Authors>
         <Title>CoAP.NET</Title>
         <Description>
