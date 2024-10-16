@@ -163,14 +163,15 @@ namespace CoAP.DTLS
                     return session;
 
                 //  No session - create a new one.
-
+                _logger.LogTrace($"DtlsChannel.GetSession: Creating new session for {ep}");
                 session = new DTLSSession(ipEndPoint, DataReceived, _serverKeys, _userKeys);
                 AddSession(session);
                 session.TlsEventHandler += MyTlsEventHandler;
 
                 session.Connect(_udpChannel);
             }
-            catch {
+            catch (Exception e) {
+                _logger.LogError($"Exception thrown in DTLSClientChannel GetSession {e.Message}");
                 ;
             }
 

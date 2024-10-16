@@ -138,7 +138,7 @@ namespace CoAP.DTLS
             _logger.LogTrace($"DtlsSession.Accept called.");
 
             DtlsServerProtocol serverProtocol = new DtlsServerProtocol();
-            
+
             DTLSServer server = new DTLSServer(_serverKeys, _userKeys);
             server.TlsEventHandler += OnTlsEvent;
             _transport.UDPChannel = udpChannel;
@@ -261,6 +261,7 @@ namespace CoAP.DTLS
                 }
 
                 if (size == -1) {
+                    _logger.LogTrace($"DtlsSession.ProcessReceivedData returned -1");
                     lock (_transport.Queue) {
                         if (_transport.Queue.Count == 0) {
                             Interlocked.Exchange(ref _listening, 0);
@@ -360,27 +361,35 @@ namespace CoAP.DTLS
 
             public int Receive(byte[] buf, int off, int len, int waitMillis) {
                 _logger.LogTrace($"OurTransport.Receive(byte[]) called.");
-                lock (Queue) {
-                    if (Queue.Count < 1) {
-                        try {
-                            Monitor.Wait(Queue, waitMillis);
-                        }
-                        catch (ThreadInterruptedException e) {
-                            // TODO Keep waiting until full wait expired?
-                            _logger.LogError($"Exception in DTLSSession.Receive: {e.Message}", e);
-                        }
 
+                try {
+                    lock (Queue) {
+                        _logger.LogTrace($"OurTransport.Receive(byte[]): Queue.Count={Queue.Count}");
                         if (Queue.Count < 1) {
-                            return -1;
-                        }
-                    }
+                            try {
+                                Monitor.Wait(Queue, waitMillis);
+                            }
+                            catch (ThreadInterruptedException e) {
+                                // TODO Keep waiting until full wait expired?
+                                _logger.LogError($"Exception in DTLSSession.Receive: {e.Message}", e);
+                            }
 
-                    byte[] packet;
-                    Queue.TryDequeue(out packet);
-                    int copyLength = Math.Min(len, packet.Length);
-                    Array.Copy(packet, 0, buf, off, copyLength);
-                    _logger.LogTrace($"OurTransport::Receive - endpoint={_ep}, packet_length={packet.Length}, data={BitConverter.ToString(buf, off, copyLength)}");
-                    return copyLength;
+                            if (Queue.Count < 1) {
+                                return -1;
+                            }
+                        }
+
+                        byte[] packet;
+                        Queue.TryDequeue(out packet);
+                        int copyLength = Math.Min(len, packet.Length);
+                        Array.Copy(packet, 0, buf, off, copyLength);
+                        _logger.LogTrace($"OurTransport::Receive - endpoint={_ep}, packet_length={packet.Length}, data={BitConverter.ToString(buf, off, copyLength)}");
+                        return copyLength;
+                    }
+                }
+                catch (Exception e) {
+                    _logger.LogError($"Exception in DTLSSession.Receive: {e.Message}", e);
+                    return -1;
                 }
             }
 

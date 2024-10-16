@@ -723,12 +723,12 @@ namespace CoAP.Channel
             UDPSocket socket = (UDPSocket)e.UserToken;
 
             if (e.SocketError == SocketError.Success) {
-                _logger.LogTrace($"UDPChannel.ProcessReceive: ==> EndReceive");
+                _logger.LogTrace($"UDPChannel.ProcessReceiveMessageFrom: ==> EndReceive");
 
                 EndReceiveMessage(socket, e.Buffer, e.Offset, e.BytesTransferred, e.RemoteEndPoint, e.ReceiveMessageFromPacketInfo.Address);
             } else if (e.SocketError != SocketError.OperationAborted
                        && e.SocketError != SocketError.Interrupted) {
-                _logger.LogTrace($"UDPChannel.rocessReceive: ==> exception handler {e.SocketError.ToString()}");
+                _logger.LogTrace($"UDPChannel.ProcessReceiveMessageFrom: ==> exception handler {e.SocketError.ToString()}");
 
                 EndReceive(socket, new SocketException((int)e.SocketError));
             }
